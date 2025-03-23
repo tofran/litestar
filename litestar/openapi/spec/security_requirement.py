@@ -26,3 +26,10 @@ in the `Security Schemes <https://spec.openapis.org/oas/v3.1.0#componentsSecurit
 MAY be empty if authorization does not require a specified scope. For other security scheme types, the array MAY contain
 a list of role names which are required for the execution,but are not otherwise defined or exchanged in-band.
 """
+
+
+# FIXME:
+
+
+def Override(value: SecurityRequirement) -> SecurityRequirement:
+    return value

@@ -67,7 +67,6 @@ class Router:
         "return_dto",
         "route_handlers",
         "security",
-        "security_override",
         "signature_namespace",
         "tags",
         "type_decoders",
@@ -99,7 +98,6 @@ class Router:
         return_dto: type[AbstractDTO] | None | EmptyType = Empty,
         route_handlers: Sequence[ControllerRouterHandler],
         security: Sequence[SecurityRequirement] | None = None,
-        security_override: Sequence[SecurityRequirement] | None = None,
         signature_namespace: Mapping[str, Any] | None = None,
         signature_types: Sequence[Any] | None = None,
         tags: Sequence[str] | None = None,
@@ -153,13 +151,8 @@ class Router:
                 function decorated by the route handler decorators.
             security: A sequence of security requirement dictionaries that contain information about which security
                 schemes should be used on the endpoint.
-                It can be overridden by routes that specify the `security_override` parameter.
-                Cannot be passed together with the `security_override` parameter.
                 See :data:`SecurityRequirement <.openapi.spec.SecurityRequirement>` for details.
-            security_override: A sequence of dicts that will override the previous security requirements of the
-                previous layers. It can be overridden by routes using specifying the `security_override` parameter.
-                Cannot be passed together with the `security` parameter.
-                See :data:`SecurityRequirement <.openapi.spec.SecurityRequirement>` for details.
+                Use the `Override` class to override the security requirements of the previous layers.
             signature_namespace: A mapping of names to types for use in forward reference resolution during signature modelling.
             signature_types: A sequence of types for use in forward reference resolution during signature modelling.
                 These types will be added to the signature namespace using their ``__name__`` attribute.
@@ -170,11 +163,6 @@ class Router:
             websocket_class: A custom subclass of :class:`WebSocket <.connection.WebSocket>` to be used as the default for
                 all route handlers, controllers and other routers associated with the router instance.
         """
-
-        if security and security_override:
-            raise ImproperlyConfiguredException(
-                "Both 'security' and 'security_override' cannot be specified simultaneously."
-            )
 
         self.after_request: AsyncAfterRequestHookHandler | None = (
             ensure_async_callable(after_request) if after_request else None  # type: ignore[assignment]
@@ -200,7 +188,6 @@ class Router:
         self.response_headers = narrow_response_headers(response_headers) if response_headers else ()
         self.return_dto = return_dto
         self.security = None if security is None else tuple(security)
-        self.security_override = None if security_override is None else tuple(security_override)
         self.signature_namespace = add_types_to_signature_namespace(
             signature_types or [], dict(signature_namespace or {})
         )

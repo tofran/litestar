@@ -3,10 +3,10 @@ from typing import Callable, Union
 import pytest
 
 from litestar import Litestar, Router, delete, get, head, patch, post, put
-from litestar.exceptions.http_exceptions import ImproperlyConfiguredException
 from litestar.handlers.http_handlers import HTTPRouteHandler
 from litestar.openapi.config import OpenAPIConfig
 from litestar.openapi.spec import Components
+from litestar.openapi.spec.security_requirement import Override
 from litestar.openapi.spec.security_scheme import SecurityScheme
 
 
@@ -54,13 +54,13 @@ def sample_handlers(
     @method_decorator("/route_with_security", security=[{"MyRouteToken": []}])
     def route_with_security() -> None: ...
 
-    @method_decorator("/route_with_security_override", security_override=[{"MyRouteToken": []}])
+    @method_decorator("/route_with_security_override", security=Override([{"MyRouteToken": []}]))
     def route_with_security_override() -> None: ...
 
     @method_decorator("/route_with_empty_security", security=[])
     def route_with_empty_security() -> None: ...
 
-    @method_decorator("/route_with_empty_security_override", security_override=[])
+    @method_decorator("/route_with_empty_security_override", security=Override([]))
     def route_with_empty_security_override() -> None: ...
 
     sample_routes = [
@@ -84,7 +84,7 @@ def sample_handlers(
         ),
         Router(
             "/router_with_security_override",
-            security_override=[{"MyRouterToken": []}],
+            security=Override([{"MyRouterToken": []}]),
             route_handlers=sample_routes,
         ),
         Router(
@@ -94,7 +94,7 @@ def sample_handlers(
         ),
         Router(
             "/router_with_empty_security_override",
-            security_override=[{"MyRouterToken": []}],
+            security=Override([{"MyRouterToken": []}]),
             route_handlers=sample_routes,
         ),
     ]
@@ -288,26 +288,3 @@ def test_app_schema_with_global_security_property(
     )
     assert paths["/router_with_empty_security/route_with_empty_security"][method]["security"] == ()
     assert paths["/router_with_empty_security/route_with_empty_security_override"][method]["security"] == ()
-
-
-def test_improperly_configured_security_override() -> None:
-    with pytest.raises(ImproperlyConfiguredException):
-
-        @get(
-            "/sample",
-            security=[{"MyGlobalToken": []}],
-            security_override=[{"MyRouteToken": []}],
-        )
-        def _invalid_route_handler() -> None: ...
-
-    with pytest.raises(ImproperlyConfiguredException):
-
-        @get("/sample")
-        def sample_handler() -> None: ...
-
-        Router(
-            "/",
-            security=[{"MyGlobalToken": []}],
-            security_override=[{"MyRouteToken": []}],
-            route_handlers=[sample_handler],
-        )

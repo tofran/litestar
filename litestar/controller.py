@@ -70,7 +70,6 @@ class Controller:
         "response_headers",
         "return_dto",
         "security",
-        "security_override",
         "signature_namespace",
         "signature_types",
         "tags",
@@ -153,11 +152,8 @@ class Controller:
     tags: Sequence[str] | None
     """A sequence of string tags that will be appended to the schema of all route handlers under the controller."""
     security: Sequence[SecurityRequirement] | None
-    """A sequence of security requirement dictionaries to be set on all route handlers under the controller."""
-    security_override: Sequence[SecurityRequirement] | None
-    """A sequence of security requirement dictionaries to be set on all route handlers under the controller,
-    overriding the security requirements set on the previous layers.
-    """
+    """A sequence of security requirement dictionaries to be set on all route handlers under the controller.
+    Passing them wrapped with `Override` will the security requirements set on the previous layers."""
     signature_namespace: dict[str, Any]
     """A mapping of names to types for use in forward reference resolution during signature modelling."""
     signature_types: Sequence[Any]
@@ -234,7 +230,6 @@ class Controller:
             response_headers=self.response_headers,
             return_dto=self.return_dto,
             security=self.security,
-            security_override=self.security_override,
             signature_types=self.signature_types,
             signature_namespace=self.signature_namespace,
             tags=self.tags,

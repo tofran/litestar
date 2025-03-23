@@ -205,10 +205,10 @@ newly introduced official ``application/vnd.msgpack``.
 https://www.iana.org/assignments/media-types/application/vnd.msgpack
 
 
-Add ``security_override`` openapi security requirement to route handlers
-------------------------------------------------------------------------
+Add the ability to override security requirements to route handlers
+-------------------------------------------------------------------
 
-The `security_override` parameter allows for granular control over security settings by replacing security
+The `Override` parameter allows for granular control over security settings by replacing security
 requirements defined in previous layers for individual routes.
 
 
